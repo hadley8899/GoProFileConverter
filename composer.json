@@ -1,0 +1,18 @@
+{
+    "name": "rh-development/gopro-file-converter",
+    "description": "A project to convert go pros stupid file names",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "RhDevelopment\\GoproFileConverter\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "ryan",
+            "email": "ryan@rh-development.co.uk"
+        }
+    ],
+    "require": {}
+}
