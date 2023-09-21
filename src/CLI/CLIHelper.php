@@ -2,9 +2,13 @@
 
 namespace RhDevelopment\GoproFileConverter\CLI;
 
-class CLIFuncs
+class CLIHelper
 {
-    public static function output($message)
+    /**
+     * @param string $message
+     * @return void
+     */
+    public static function output(string $message): void
     {
         echo '[[' . date('Y-m-d H:i:s') . ']] - ' . $message . PHP_EOL;
     }

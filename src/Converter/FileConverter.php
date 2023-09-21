@@ -2,25 +2,34 @@
 
 namespace RhDevelopment\GoproFileConverter\Converter;
 
-use RhDevelopment\GoproFileConverter\CLI\CLIFuncs;
+use RhDevelopment\GoproFileConverter\CLI\CLIHelper;
 
 class FileConverter
 {
+    /**
+     * @param string $directory
+     * @return void
+     */
     public static function convertNames(string $directory): void
     {
         if (!is_dir($directory)) {
-            CLIFuncs::output('Directory does not exist, Please enter a valid directory');
+            CLIHelper::output('Directory does not exist, Please enter a valid directory');
             exit;
         }
-        CLIFuncs::output('Converting files in ' . $directory);
+        CLIHelper::output('Converting files in ' . $directory);
 
         $files = self::removeNonGoProFiles(scandir($directory));
 
-        CLIFuncs::output('Found ' . count($files) . ' files to convert');
+        CLIHelper::output('Found ' . count($files) . ' files to convert');
 
         self::convertFiles($files, $directory);
     }
 
+    /**
+     * @param array $files
+     * @param string $directory
+     * @return void
+     */
     private static function convertFiles(array $files, string $directory): void
     {
         foreach ($files as $file) {
@@ -30,7 +39,7 @@ class FileConverter
             $originalExtension = $fileDetails['extension'];
 
             if (empty($originalExtension)) {
-                CLIFuncs::output('File ' . $file . ' has no extension, skipping');
+                CLIHelper::output('File ' . $file . ' has no extension, skipping');
                 continue;
             }
 
@@ -39,30 +48,42 @@ class FileConverter
             // check if the filename follows GoPro naming convention
             if (preg_match('/^..(\d{2})(\d{4})$/', $originalName, $matches)) {
                 // Matches the GoPro naming convention
-                $groupNumber = $matches[1];
-                $fileNumber = $matches[2];
-
+                [, $groupNumber, $fileNumber] = $matches;
                 // format new name
                 $newName = self::newName($groupNumber, $fileNumber);
 
                 // rename the file
                 rename($directory . '/' . $file, $directory . '/' . $newName . '.' . $originalExtension);
             } else {
-                CLIFuncs::output('File ' . $file . ' does not match GoPro naming convention, skipping');
+                CLIHelper::output('File ' . $file . ' does not match GoPro naming convention, skipping');
             }
         }
     }
 
+    /**
+     * @param string $directory
+     * @param string $file
+     * @return array|string
+     */
     private static function getFileDetails(string $directory, string $file): array|string
     {
         return pathinfo($directory . '/' . $file);
     }
 
-    private static function newName($groupNumber, $fileNumber): string
+    /**
+     * @param string $groupNumber
+     * @param string $fileNumber
+     * @return string
+     */
+    private static function newName(string $groupNumber, string $fileNumber): string
     {
         return $fileNumber . ' - ' . $groupNumber;
     }
 
+    /**
+     * @param array $files
+     * @return array
+     */
     private static function removeNonGoProFiles(array $files): array
     {
         // Remove the directories
@@ -71,14 +92,22 @@ class FileConverter
         return self::removeNonGoProLikeFiles($files);
     }
 
+    /**
+     * @param array $files
+     * @return array
+     */
     private static function removeNonVideoFiles(array $files): array
     {
         // Remove any files that are not MP4 or m4v
-        return array_filter($files, function ($file) {
+        return array_filter($files, static function ($file) {
             return preg_match('/\.m4v$|\.MP4$/', $file);
         });
     }
 
+    /**
+     * @param array $files
+     * @return array
+     */
     private static function removeNonGoProLikeFiles(array $files): array
     {
         return array_filter(array_map(function ($file) {
@@ -94,7 +123,11 @@ class FileConverter
         }, $files));
     }
 
-    private static function removeExtension($filename): array|string
+    /**
+     * @param string $filename
+     * @return array|string
+     */
+    private static function removeExtension(string $filename): array|string
     {
         return pathinfo($filename, PATHINFO_FILENAME);
     }
